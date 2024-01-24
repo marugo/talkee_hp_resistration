@@ -1,18 +1,17 @@
 const prices = {};
 
-// Replace with your Firebase project config.
 const firebaseConfig = {
-  apiKey: 'AIzaSyAEGmffBNUsVrdVS_iyiI4eUMOWWp4Q5dI',
-  authDomain: 'stripe-subs-ext.firebaseapp.com',
-  databaseURL: 'https://stripe-subs-ext.firebaseio.com',
-  projectId: 'stripe-subs-ext',
-  storageBucket: 'stripe-subs-ext.appspot.com',
-  messagingSenderId: '955066520266',
-  appId: '1:955066520266:web:ec7135a76fea7a1bce9a33',
+  apiKey: "AIzaSyDpqmK8QzGMLw9cmaxxGl8_fHPIdxRt63g",
+  authDomain: "talkee-2cbee.firebaseapp.com",
+  projectId: "talkee-2cbee",
+  storageBucket: "talkee-2cbee.appspot.com",
+  messagingSenderId: "522739634629",
+  appId: "1:522739634629:web:926233089308d09ef3fbac",
+  measurementId: "G-CCWY6WT7VE"
 };
 
 // Replace with your cloud functions location
-const functionLocation = 'us-east1';
+const functionLocation = 'asia-northeast1';
 
 // Initialize Firebase
 const firebaseApp = firebase.initializeApp(firebaseConfig);
@@ -37,21 +36,36 @@ const firebaseUiConfig = {
   signInFlow: 'popup',
   signInSuccessUrl: '/',
   signInOptions: [
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.EmailAuthProvider.PROVIDER_ID,
+    // firebase.auth.GoogleAuthProvider.PROVIDER_ID,
+    // firebase.auth.EmailAuthProvider.PROVIDER_ID,
+    {
+      provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+      requireDisplayName: false
+    }
   ],
   credentialHelper: firebaseui.auth.CredentialHelper.NONE,
   // Your terms of service url.
-  tosUrl: 'https://example.com/terms',
+  tosUrl: 'https://talkee.me/terms-of-use.html',
   // Your privacy policy url.
-  privacyPolicyUrl: 'https://example.com/privacy',
+  privacyPolicyUrl: 'https://talkee.me/privacypolicy.html',
 };
 firebase.auth().onAuthStateChanged((firebaseUser) => {
+  let sendMsg = document.querySelector('#sendMsg');
   if (firebaseUser) {
-    document.querySelector('#loader').style.display = 'none';
-    document.querySelector('main').style.display = 'block';
-    currentUser = firebaseUser.uid;
-    startDataListeners();
+    if ( firebaseUser.emailVerified == false ){
+      document.querySelector('#loader').style.display = 'none';
+      document.querySelector('#notVerification').style.display = 'block';
+
+      sendMsg.innerText = firebaseUser.email + ' に確認メールを送信しました。';
+      firebaseUser.sendEmailVerification();
+    }else{
+      document.querySelector('#loader').style.display = 'none';
+      document.querySelector('main').style.display = 'block';
+      document.querySelector('#userMail').innerText =　firebaseUser.email + "　　";
+
+      currentUser = firebaseUser.uid;
+      startDataListeners();
+    }
   } else {
     document.querySelector('main').style.display = 'none';
     firebaseUI.start('#firebaseui-auth-container', firebaseUiConfig);
@@ -90,14 +104,18 @@ function startDataListeners() {
         priceSnap.docs.forEach((doc) => {
           const priceId = doc.id;
           const priceData = doc.data();
+          var innterval = "once"; 
+          if(priceData.interval == "month"){
+            innterval = "月";
+          }else if(priceData.interval == "year"){
+            innterval = "年";
+          }
           prices[priceId] = priceData;
           const content = document.createTextNode(
             `${new Intl.NumberFormat('en-US', {
               style: 'currency',
               currency: priceData.currency,
-            }).format((priceData.unit_amount / 100).toFixed(2))} per ${
-              priceData.interval ?? 'once'
-            }`
+            }).format((priceData.unit_amount / 1).toFixed(2))} / ${innterval}`
           );
           const option = document.createElement('option');
           option.value = priceId;
@@ -118,7 +136,7 @@ function startDataListeners() {
       });
     });
   // Get all subscriptions for the customer
-  db.collection('customers')
+  db.collection('users')
     .doc(currentUser)
     .collection('subscriptions')
     .where('status', 'in', ['trialing', 'active'])
@@ -133,14 +151,19 @@ function startDataListeners() {
       // In this implementation we only expect one Subscription to exist
       const subscription = snapshot.docs[0].data();
       const priceData = (await subscription.price.get()).data();
+      var innterval = "once"; 
+      if(priceData.interval == "month"){
+        innterval = "月";
+      }else if(priceData.interval == "year"){
+        innterval = "年";
+      }
       document.querySelector(
         '#my-subscription p'
-      ).textContent = `You are paying ${new Intl.NumberFormat('en-US', {
+      ).textContent = `現在有料プランをご利用中です( ${new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: priceData.currency,
-      }).format((priceData.unit_amount / 100).toFixed(2))} per ${
-        priceData.interval
-      }, giving you the role: ${await getCustomClaimRole()}. 🥳`;
+      }).format((priceData.unit_amount / 1).toFixed(2))} / ${innterval} )`;
+      // document.querySelector('#my-subscription p').textContent = "現在有料プランに加入中です。"
     });
 }
 
@@ -184,7 +207,7 @@ async function subscribe(event) {
   }
 
   const docRef = await db
-    .collection('customers')
+    .collection('users')
     .doc(currentUser)
     .collection('checkout_sessions')
     .add(checkoutSession);
@@ -200,6 +223,7 @@ async function subscribe(event) {
       window.location.assign(url);
     }
   });
+  
 }
 
 // Billing portal handler
@@ -212,8 +236,10 @@ document
     const functionRef = firebase
       .app()
       .functions(functionLocation)
-      .httpsCallable('ext-firestore-stripe-subscriptions-createPortalLink');
-    const { data } = await functionRef({ returnUrl: window.location.origin });
+      .httpsCallable('https://billing.stripe.com/p/login/8wMbLL1px3pa9205kk');
+    const { data } = await functionRef({ 
+      returnUrl: window.location.origin, 
+    });
     window.location.assign(data.url);
   });
 

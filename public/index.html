@@ -1,68 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja" class="h-100">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Stripe Subscriptions Firebase Extension Demo</title>
-    <link rel="stylesheet" href="css/main.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="css/style.css" />
   </head>
-  <body>
+  <body class="h-100 d-flex flex-column">
+    <!-- <header>
+      <a href="/" rel="home">Talkee 会員登録</a>
+    </header> -->
+
     <header>
-      <a href="/" rel="home">Stripe Subscriptions Firebase Extension Demo</a>
+      <div class="container">
+          <nav class="navbar navbar-expand-lg navbar-dark">
+            <div class="container-fluid nopadding">
+              <div id="logo-container">
+                <a class="navbar-brand" href="index.html"><img src="./img/logo.png" alt="ロゴ"></a>
+              </div>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="index.html">ホーム</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" href="company-info.html">会社概要</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link active" href="contact.html">お問合せ</a>
+                  </li>
+              </div>
+            </div>
+          </nav>
+      </div>
+    
     </header>
 
-    <section id="firebaseui-auth-container">
-      <div id="loader">Loading &hellip;</div>
-    </section>
-    <main>
-      <button type="button" id="signout">Sign out</button>
-      <div id="subscribe">
-        <h2>Subscribe</h2>
-        <div class="test-card-notice">
-          Use any of the
-          <a
-            href="https://stripe.com/docs/testing#cards"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Stripe test cards</a
-          >
-          for this demo, e.g.
-          <div class="card-number">
-            4242<span></span>4242<span></span>4242<span></span>4242
-          </div>
-        </div>
-        <section class="products"></section>
-      </div>
-      <section id="my-subscription">
-        <h2>My subscription</h2>
-        <p></p>
-        <h3>View invoices, update subscription & payment methods</h3>
-        <button id="billing-portal-button">Access customer portal</button>
+    <div class="container flex-shrink-0" id="main">
+      <section id="firebaseui-auth-container">
+        <div id="loader">Loading &hellip;</div>
       </section>
-    </main>
 
-    <footer>
-      <p>
-        Made with ❤️ and ☕️ by Stripe & Firebase | View
-        <a
-          href="https://github.com/stripe-samples/firebase-subscription-payments"
-          target="_blank"
-          rel="noopener noreferrer"
-          >source</a
-        >
-      </p>
+      <div id="notVerification">
+        <p id="sendMsg"></p>
+        <p>メール内のリンクをクリックして確認を完了してください。</p>
+        <a href="./">
+          <button type="btn">　メール確認を完了した　</button>
+        </a>
+      </div>
+
+      <main>
+        <div class="d-flex justify-content-end">
+          <i class="bi bi-envelope-fill" style="color: #aaa;padding-right: 5px;"></i>
+          <span id="userMail"></span>
+          <button type="btn" id="signout">ログアウト</button>
+        </div>
+
+        <session id="my-subscription">
+          <br>
+          <h3>ご利用ありがとうございます。</h3>
+          <p></p>
+          <br>
+          <p>請求書の表示 / プラン変更・解約 / 支払い方法の更新</p>
+          <a href="https://billing.stripe.com/p/login/8wMbLL1px3pa9205kk"><button id="billing-portal-button">　会員ポータルサイトへ　</button></a>
+          <!-- <button id="billing-portal-button">　会員ポータルサイトへ　</button> -->
+        </session>
+
+        <div id="subscribe">
+          <section class="products"></section>
+        </div>
+      </main>
+    </div>
+
+    <footer class="mt-auto">
+      <div class="container">
+        <div class="row row-cols-auto">
+          <div class="col-md-auto col-12"><a href="https://talkee.me/index.html">ホーム</a></div>
+          <div class="col-md-auto col-12"><a href="https://talkee.me/company-info.html">会社概要</a></div>
+          <div class="col-md-auto col-12"><a href="https://talkee.me/privacypolicy.html">プライバシーポリシー</a></div>
+          <div class="col-md-auto col-12"><a href="https://talkee.me/terms-of-use.html">利用規約</a></div>
+          <div class="col-md-auto col-12"><a href="https://talkee.me/tokusho.html">特定商取引法に基づく表示</a></div>
+          <div class="col-md-auto col-12"><a href="https://talkee.me/contact.html">お問合せ</a></div>
+        </div>
+        <p>© 2023 Talkee. All Rights Reserved.</p>
+      </div>
     </footer>
+    <script src="script.js"></script>
 
     <template id="product">
       <div class="product">
         <img src="" alt="" />
         <h2>name</h2>
+        <hr>
         <p class="description">description</p>
-        <form class="product-form">
-          <label for="price">Choose pricing plan</label>
-          <select id="price" name="price"></select>
-          <button type="submit">Subscribe</button>
-        </form>
+        <div class="plan_form">
+          <form class="product-form">
+            <!-- <label for="price">Choose pricing plan</label> -->
+            <select id="price" name="price"></select>
+            <button type="submit">　購入する　</button>
+          </form>
+        </div>
       </div>
     </template>
 
@@ -79,14 +121,21 @@
     <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/7.14.5/firebase-firestore.js"></script>
 
-    <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+    <!-- <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
     <link
       type="text/css"
       rel="stylesheet"
       href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css"
-    />
+    /> -->
+
+    <script src="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth__ja.js"></script>
+    <link type="text/css" rel="stylesheet" href="https://www.gstatic.com/firebasejs/ui/6.0.1/firebase-ui-auth.css" />
 
     <!-- Application Code -->
     <script src="javascript/app.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+   
   </body>
 </html>
