@@ -69,6 +69,8 @@ firebase.auth().onAuthStateChanged((firebaseUser) => {
   } else {
     document.querySelector('main').style.display = 'none';
     firebaseUI.start('#firebaseui-auth-container', firebaseUiConfig);
+    document.querySelector('.firebaseui-title').innerText = 'メールで会員登録/ログイン';
+
   }
 });
 
@@ -249,3 +251,13 @@ async function getCustomClaimRole() {
   const decodedToken = await firebase.auth().currentUser.getIdTokenResult();
   return decodedToken.claims.stripeRole;
 }
+
+// メール確認後
+document
+  .querySelector('#mailValifiedOK')
+  .addEventListener('click', () => {
+    // document.querySelector('main').style.display = 'none';
+    document.querySelector('#notVerification').style.display = 'none';
+    firebaseUI.start('#firebaseui-auth-container', firebaseUiConfig);
+    document.querySelector('.firebaseui-title').innerText = 'メールで会員登録/ログイン';
+  });
